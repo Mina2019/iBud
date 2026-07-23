@@ -161,7 +161,6 @@ def delete_post(post_id):
 
 def post_form(category, purpose):
 
-
     st.subheader(
         f"{purpose}: {category}"
     )
@@ -252,7 +251,6 @@ def post_form(category, purpose):
 
 def show_posts(category):
 
-
     st.subheader(
         f"📋 {category} Posts"
     )
@@ -260,7 +258,9 @@ def show_posts(category):
 
     response = (
 
-        supabase.table(
+        supabase
+
+        .table(
             "ibud_posts"
         )
 
@@ -279,7 +279,6 @@ def show_posts(category):
     posts = response.data
 
 
-
     if posts:
 
 
@@ -289,18 +288,24 @@ def show_posts(category):
             with st.container():
 
 
-                if post.get("image_url"):
+                # Image
 
+                if post.get("image_url"):
 
                     st.image(
                         post["image_url"],
                         width=200,
-                        caption="Post Image"
+                        caption="Image"
                     )
 
 
                 st.write(
                     "## " + category
+                )
+
+
+                st.write(
+                    post["purpose"]
                 )
 
 
@@ -333,6 +338,8 @@ def show_posts(category):
                 )
 
 
+                # Only Wanted posts have applicants
+
                 if post["purpose"] == "Wanted":
 
 
@@ -347,9 +354,11 @@ def show_posts(category):
                             f"Applicant {i+1}"
                         )
 
+
                         st.info(
-                            "Empty"
+                            "Empty position"
                         )
+
 
 
                 if st.button(
@@ -374,8 +383,8 @@ def show_posts(category):
                 st.divider()
 
 
-    else:
 
+    else:
 
         st.info(
             "No posts found."
@@ -430,7 +439,6 @@ def choose_purpose(category):
 
         if action == "Post":
 
-
             post_form(
                 category,
                 st.session_state.purpose
@@ -438,7 +446,6 @@ def choose_purpose(category):
 
 
         else:
-
 
             show_posts(
                 category
@@ -480,7 +487,6 @@ for tab, activity in zip(
 
 
     with tab:
-
 
         category = activity.split(
             " ",
