@@ -539,14 +539,24 @@ def show_posts(category):
 
                 # Poster photo
 
-                if post.get("photo_url"):
+                if (
+                    post.get("photo_url")
+                    and post["photo_url"].startswith("http")
+                ):
 
+                    try:
 
-                    st.image(
-                        post["photo_url"],
-                        width=200,
-                        caption="Poster Photo"
-                    )
+                        st.image(
+                            post["photo_url"],
+                            width=200,
+                            caption="Poster Photo"
+                        )
+
+                    except:
+
+                        st.warning(
+                            "Photo unavailable"
+                        )
 
 
 
