@@ -307,18 +307,15 @@ def post_form(category, purpose):
         key=f"{category}_{purpose}_email"
     )
 
-    photo = st.file_uploader(
-        "Your Photo (1 picture only)",
-        type=["jpg", "jpeg", "png"],
-        key=f"{category}_{purpose}_photo"
+    image = st.file_uploader(
+        "Photo",
+        type=[
+            "jpg",
+            "jpeg",
+            "png"
+        ],
+        key=f"{layer}_{module}_{purpose}_image"
     )
-    if photo:
-        image = Image.open(photo)
-        st.image(
-            image,
-            caption="Your profile photo",
-            width=200
-        )
 
     if st.button(
         "Post",
