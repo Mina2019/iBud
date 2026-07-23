@@ -1,8 +1,10 @@
 import streamlit as st
 from supabase import create_client, Client
 import re
-import base64
+
 from PIL import Image
+import io
+import base64
 
 
 # ==========================================================
