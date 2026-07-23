@@ -203,6 +203,21 @@ def show_posts(category):
                     post["activity_time"]
                 )
 
+                if post.get("photo_url"):
+
+                    image_bytes = base64.b64decode(
+                        post["photo_url"]
+                    )
+
+                    image = Image.open(
+                        io.BytesIO(image_bytes)
+                    )
+
+                    st.image(
+                        image,
+                        width=200,
+                        caption="Profile Photo"
+                    )
 
                 st.write(
                     "📧",
