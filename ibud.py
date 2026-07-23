@@ -169,6 +169,21 @@ def show_posts(category):
 
             with st.container():
 
+                if post["photo_url"]:
+
+                    image_bytes = base64.b64decode(
+                        post["photo_url"]
+                    )
+
+                    image = Image.open(
+                        io.BytesIO(image_bytes)
+                    )
+
+                    st.image(
+                        image,
+                        width=200
+                    )
+
 
                 st.write(
                     "### " + post["title"]
