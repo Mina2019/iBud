@@ -247,12 +247,14 @@ def post_form(category, purpose):
 
 
     title = st.text_input(
-        "Title"
+        "Title",
+        key=f"{category}_{purpose}_title"
     )
 
 
     description = st.text_area(
-        "Description"
+        "Description",
+        key=f"{category}_{purpose}_description"
     )
 
 
@@ -272,25 +274,25 @@ def post_form(category, purpose):
 
 
     email = st.text_input(
-        "Email"
+        "Email",
+        key=f"{category}_{purpose}_email"
     )
 
 
     photo = st.file_uploader(
-
         "Your Photo (1 picture only)",
-
         type=[
             "jpg",
             "jpeg",
             "png"
-        ]
-
+        ],
+        key=f"{category}_{purpose}_photo"
     )
 
 
     if st.button(
-        "Post"
+        "Post",
+        key=f"{category}_{purpose}_post"
     ):
 
 
