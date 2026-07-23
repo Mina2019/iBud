@@ -11,8 +11,8 @@ st.set_page_config(page_title="iBud", page_icon="🤝", layout="wide")
 
 # Put these values in .streamlit/secrets.toml when you deploy.  Never use a
 # service-role key in a Streamlit app.
-SUPABASE_URL = st.secrets.get("SUPABASE_URL", os.getenv("SUPABASE_URL", ""))
-SUPABASE_KEY = st.secrets.get("SUPABASE_KEY", os.getenv("SUPABASE_KEY", ""))
+SUPABASE_URL = st.secrets.get("SUPABASE_URL", os.getenv("SUPABASE_URL", "https://xbdlzzjparnvrsvsjfca.supabase.co"))
+SUPABASE_KEY = st.secrets.get("SUPABASE_KEY", os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhiZGx6empwYXJudnJzdnNqZmNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MzQ0NDYsImV4cCI6MjA5MzUxMDQ0Nn0.h0AxxjVJZWpTCkywH-Et30TCn4nKQwGXfvmPbVmgZJo"))
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     st.error("Add SUPABASE_URL and SUPABASE_KEY to Streamlit secrets before running iBud.")
