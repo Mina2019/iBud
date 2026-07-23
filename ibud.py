@@ -498,206 +498,36 @@ def show_applicants(post):
 # SHOW LISTINGS
 # ==========================================================
 
-def show_posts(category):
+# Poster photo
 
+photo_url = post.get("photo_url")
 
-    st.subheader(
-        f"📋 {category} Listings"
-    )
 
+if photo_url:
 
-    response = (
+    if (
+        isinstance(photo_url, str)
+        and photo_url.startswith("http")
+    ):
 
-        supabase.table(
-            "ibud_posts"
-        )
+        try:
 
-        .select("*")
+            st.image(
+                photo_url,
+                width=200,
+                caption="Poster Photo"
+            )
 
-        .eq(
-            "category",
-            category
-        )
+        except Exception:
 
-        .execute()
-
-    )
-
-
-    posts = response.data
-
-
-
-    if posts:
-
-
-        for post in posts:
-
-
-            with st.container():
-
-
-                # Poster photo
-
-                if (
-                    post.get("photo_url")
-                    and post["photo_url"].startswith("http")
-                ):
-
-                    try:
-
-                        st.image(
-                            post["photo_url"],
-                            width=200,
-                            caption="Poster Photo"
-                        )
-
-                    except:
-
-                        st.warning(
-                            "Photo unavailable"
-                        )
-
-
-
-                st.write(
-                    "## " + post["title"]
-                )
-
-
-                st.write(
-                    post["description"]
-                )
-
-
-                st.write(
-                    "📍",
-                    post["city"]
-                )
-
-
-                st.write(
-                    "📅",
-                    post["activity_date"]
-                )
-
-
-                st.write(
-                    "🕒",
-                    post["activity_time"]
-                )
-
-
-                st.write(
-                    "📧",
-                    post["email"]
-                )
-
-
-
-                # Wanted ads allow applications
-
-                if post["purpose"] == "Wanted":
-
-
-                    show_applicants(
-                        post
-                    )
-
-
-                    st.subheader(
-                        "Apply"
-                    )
-
-
-                    name = st.text_input(
-                        "Your Name",
-                        key=f"name_{post['id']}"
-                    )
-
-
-                    applicant_email = st.text_input(
-                        "Your Email",
-                        key=f"email_{post['id']}"
-                    )
-
-
-                    applicant_photo = st.file_uploader(
-                        "Your Photo",
-                        type=[
-                            "jpg",
-                            "jpeg",
-                            "png"
-                        ],
-                        key=f"photo_{post['id']}"
-                    )
-
-
-                    if st.button(
-                        "Apply",
-                        key=f"apply_{post['id']}"
-                    ):
-
-
-                        if valid_email(
-                            applicant_email
-                        ):
-
-
-                            apply_to_post(
-                                post["id"],
-                                name,
-                                applicant_email,
-                                upload_photo(applicant_photo)
-                            )
-
-
-                            st.success(
-                                "Application sent!"
-                            )
-
-
-                            st.rerun()
-
-
-                        else:
-
-
-                            st.error(
-                                "Invalid email"
-                            )
-
-
-
-                if st.button(
-                    "🗑 Delete Ad",
-                    key=f"delete_{post['id']}"
-                ):
-
-
-                    delete_post(
-                        post["id"]
-                    )
-
-
-                    st.success(
-                        "Ad deleted"
-                    )
-
-
-                    st.rerun()
-
-
-
-                st.divider()
-
-
+            st.warning(
+                "Photo cannot be displayed"
+            )
 
     else:
 
-
-        st.info(
-            "No listings found."
+        st.warning(
+            "Invalid photo saved for this listing"
         )
 
 
