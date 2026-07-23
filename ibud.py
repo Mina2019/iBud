@@ -240,62 +240,50 @@ def show_posts(category):
 
 def post_form(category, purpose):
 
-
     st.subheader(
         f"{purpose}: {category}"
     )
-
 
     title = st.text_input(
         "Title",
         key=f"{category}_{purpose}_title"
     )
 
-
     description = st.text_area(
         "Description",
         key=f"{category}_{purpose}_description"
     )
-
 
     city = st.text_input(
         "City",
         key=f"{category}_{purpose}_city"
     )
 
-
     activity_date = st.date_input(
-        "Date"
+        "Date",
+        key=f"{category}_{purpose}_date"
     )
-
 
     activity_time = st.time_input(
-        "Time"
+        "Time",
+        key=f"{category}_{purpose}_time"
     )
-
 
     email = st.text_input(
         "Email",
         key=f"{category}_{purpose}_email"
     )
 
-
     photo = st.file_uploader(
         "Your Photo (1 picture only)",
-        type=[
-            "jpg",
-            "jpeg",
-            "png"
-        ],
+        type=["jpg", "jpeg", "png"],
         key=f"{category}_{purpose}_photo"
     )
-
 
     if st.button(
         "Post",
         key=f"{category}_{purpose}_post"
     ):
-
 
         if not valid_email(email):
 
@@ -305,29 +293,17 @@ def post_form(category, purpose):
 
             return
 
-
         save_post(
-
             category,
-
             purpose,
-
             title,
-
             description,
-
             city,
-
             activity_date,
-
             activity_time,
-
             email,
-
             photo
-
         )
-
 
         st.success(
             "Post created successfully!"
