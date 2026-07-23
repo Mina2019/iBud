@@ -2,6 +2,7 @@ import streamlit as st
 from supabase import create_client, Client
 import re
 import base64
+from PIL import Image
 
 
 # ==========================================================
@@ -279,6 +280,13 @@ def post_form(category, purpose):
         type=["jpg", "jpeg", "png"],
         key=f"{category}_{purpose}_photo"
     )
+    if photo:
+        image = Image.open(photo)
+        st.image(
+            image,
+            caption="Your profile photo",
+            width=200
+        )
 
     if st.button(
         "Post",
