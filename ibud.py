@@ -259,7 +259,8 @@ def post_form(category, purpose):
 
 
     city = st.text_input(
-        "City"
+        "City",
+        key=f"{category}_{purpose}_city"
     )
 
 
