@@ -165,36 +165,30 @@ def post_form(category, purpose):
         f"{purpose}: {category}"
     )
 
-
     description = st.text_area(
         "What do you want to do?",
         key=f"{category}_{purpose}_description"
     )
-
 
     city = st.text_input(
         "City",
         key=f"{category}_{purpose}_city"
     )
 
-
     activity_date = st.date_input(
         "Date",
         key=f"{category}_{purpose}_date"
     )
-
 
     activity_time = st.time_input(
         "Time",
         key=f"{category}_{purpose}_time"
     )
 
-
     email = st.text_input(
         "Email",
         key=f"{category}_{purpose}_email"
     )
-
 
     image = st.file_uploader(
         "Image (1 image only)",
@@ -211,7 +205,6 @@ def post_form(category, purpose):
         "Post",
         key=f"{category}_{purpose}_post"
     ):
-
 
         if not valid_email(email):
 
@@ -246,10 +239,260 @@ def post_form(category, purpose):
 
 
 # ==========================================================
+# APPLY TO WANTED POST
+# ==========================================================
+
+def apply_post(post_id):
+
+
+    name = st.text_input(
+        "Your Name",
+        key=f"name_{post_id}"
+    )
+
+
+    email = st.text_input(
+        "Your Email",
+        key=f"email_{post_id}"
+    )
+
+
+    image = st.file_uploader(
+        "Your Image",
+        type=[
+            "jpg",
+            "jpeg",
+            "png"
+        ],
+        key=f"image_{post_id}"
+    )
+
+
+    if st.button(
+        "Apply",
+        key=f"apply_{post_id}"
+    ):
+
+
+        if not valid_email(email):
+
+            st.error(
+                "Invalid email."
+            )
+
+            return
+
+
+        response = (
+
+            supabase.table(
+                "ibud_applicants"
+            )
+
+            .select("*")
+
+            .eq(
+                "post_id",
+                post_id
+            )
+
+            .execute()
+
+        )
+
+
+        if len(response.data) >= 5:
+
+            st.error(
+                "Maximum 5 applicants reached."
+            )
+
+            return
+
+
+
+        image_url = upload_image(
+            image
+        )
+
+
+        supabase.table(
+            "ibud_applicants"
+        ).insert({
+
+            "post_id": post_id,
+
+            "name": name,
+
+            "email": email,
+
+            "image_url": image_url,
+
+            "status": "pending"
+
+        }).execute()
+
+
+        st.success(
+            "Application sent!"
+        )
+
+        st.rerun()
+
+
+
+# ==========================================================
+# SHOW APPLICANTS
+# ==========================================================
+
+def show_applicants(post_id):
+
+
+    st.subheader(
+        "👥 Applicants"
+    )
+
+
+    response = (
+
+        supabase.table(
+            "ibud_applicants"
+        )
+
+        .select("*")
+
+        .eq(
+            "post_id",
+            post_id
+        )
+
+        .execute()
+
+    )
+
+
+    applicants = response.data
+
+
+
+    for i in range(5):
+
+
+        st.write(
+            f"### Applicant {i+1}"
+        )
+
+
+        if i < len(applicants):
+
+
+            applicant = applicants[i]
+
+
+            if applicant.get("image_url"):
+
+                st.image(
+                    applicant["image_url"],
+                    width=150,
+                    caption="Image"
+                )
+
+
+            st.write(
+                "👤",
+                applicant["name"]
+            )
+
+
+            st.write(
+                "📧",
+                applicant["email"]
+            )
+
+
+            st.write(
+                "Status:",
+                applicant["status"]
+            )
+
+
+            col1, col2 = st.columns(2)
+
+
+            with col1:
+
+                if st.button(
+                    "✅ Accept",
+                    key=f"accept_{applicant['id']}"
+                ):
+
+
+                    supabase.table(
+                        "ibud_applicants"
+                    ).update({
+
+                        "status": "accepted"
+
+                    }).eq(
+
+                        "id",
+                        applicant["id"]
+
+                    ).execute()
+
+
+                    st.success(
+                        "Applicant accepted"
+                    )
+
+                    st.rerun()
+
+
+
+            with col2:
+
+                if st.button(
+                    "❌ Reject",
+                    key=f"reject_{applicant['id']}"
+                ):
+
+
+                    supabase.table(
+                        "ibud_applicants"
+                    ).update({
+
+                        "status": "rejected"
+
+                    }).eq(
+
+                        "id",
+                        applicant["id"]
+
+                    ).execute()
+
+
+                    st.success(
+                        "Applicant rejected"
+                    )
+
+                    st.rerun()
+
+
+        else:
+
+
+            st.info(
+                "Empty position"
+            )
+
+
+
+# ==========================================================
 # SHOW POSTS
 # ==========================================================
 
 def show_posts(category):
+
 
     st.subheader(
         f"📋 {category} Posts"
@@ -258,9 +501,7 @@ def show_posts(category):
 
     response = (
 
-        supabase
-
-        .table(
+        supabase.table(
             "ibud_posts"
         )
 
@@ -279,226 +520,87 @@ def show_posts(category):
     posts = response.data
 
 
-    if posts:
+
+    for post in posts:
 
 
-        for post in posts:
+        with st.container():
 
 
-            with st.container():
+            if post.get("image_url"):
 
-
-                # Image
-
-                if post.get("image_url"):
-
-                    st.image(
-                        post["image_url"],
-                        width=200,
-                        caption="Image"
-                    )
-
-
-                st.write(
-                    "## " + category
+                st.image(
+                    post["image_url"],
+                    width=200,
+                    caption="Image"
                 )
 
 
-                st.write(
-                    post["purpose"]
-                )
-
-
-                st.write(
-                    post["description"]
-                )
-
-
-                st.write(
-                    "📍",
-                    post["city"]
-                )
-
-
-                st.write(
-                    "📅",
-                    post["activity_date"]
-                )
-
-
-                st.write(
-                    "🕒",
-                    post["activity_time"]
-                )
-
-
-                st.write(
-                    "📧",
-                    post["email"]
-                )
-
-
-                # Only Wanted posts have applicants
-
-                if post["purpose"] == "Wanted":
-
-
-                    st.subheader(
-                        "👥 Applicants"
-                    )
-
-
-                    for i in range(5):
-
-                        st.write(
-                            f"Applicant {i+1}"
-                        )
-
-
-                        st.info(
-                            "Empty position"
-                        )
-
-
-
-                if st.button(
-                    "🗑 Delete Post",
-                    key=f"delete_{post['id']}"
-                ):
-
-
-                    delete_post(
-                        post["id"]
-                    )
-
-
-                    st.success(
-                        "Post deleted"
-                    )
-
-
-                    st.rerun()
-
-
-                st.divider()
-
-
-
-    else:
-
-        st.info(
-            "No posts found."
-        )
-
-
-
-# ==========================================================
-# OFFERING / WANTED
-# ==========================================================
-
-def choose_purpose(category):
-
-
-    col1, col2 = st.columns(2)
-
-
-    with col1:
-
-        if st.button(
-            "🔵 Offering",
-            key=f"{category}_offering"
-        ):
-
-            st.session_state.purpose = "Offering"
-
-
-
-    with col2:
-
-        if st.button(
-            "🟢 Wanted",
-            key=f"{category}_wanted"
-        ):
-
-            st.session_state.purpose = "Wanted"
-
-
-
-    if "purpose" in st.session_state:
-
-
-        action = st.radio(
-            "Action",
-            [
-                "Post",
-                "View Posts"
-            ],
-            key=f"{category}_action"
-        )
-
-
-        if action == "Post":
-
-            post_form(
-                category,
-                st.session_state.purpose
+            st.write(
+                "## " + category
             )
 
 
-        else:
-
-            show_posts(
-                category
+            st.write(
+                post["purpose"]
             )
 
 
-
-# ==========================================================
-# ACTIVITY TABS
-# ==========================================================
-
-activities = [
-
-    "☕ Coffee",
-    "🍽 Lunch",
-    "🚶 Walk",
-    "🏃 Exercise",
-    "📚 Study",
-    "🎬 Movie",
-    "🛍 Shopping",
-    "🎾 Sports",
-    "🎮 Gaming",
-    "🎵 Music",
-    "🐕 Dog Walk",
-    "➕ Other"
-
-]
+            st.write(
+                post["description"]
+            )
 
 
-tabs = st.tabs(
-    activities
-)
+            st.write(
+                "📍",
+                post["city"]
+            )
 
 
-for tab, activity in zip(
-    tabs,
-    activities
-):
+            st.write(
+                "📅",
+                post["activity_date"]
+            )
 
 
-    with tab:
-
-        category = activity.split(
-            " ",
-            1
-        )[1]
+            st.write(
+                "🕒",
+                post["activity_time"]
+            )
 
 
-        st.header(
-            activity
-        )
+            st.write(
+                "📧",
+                post["email"]
+            )
 
 
-        choose_purpose(
-            category
-        )
+            # Only Wanted posts get applicants
+
+            if post["purpose"] == "Wanted":
+
+
+                show_applicants(
+                    post["id"]
+                )
+
+
+                apply_post(
+                    post["id"]
+                )
+
+
+
+            if st.button(
+                "🗑 Delete Post",
+                key=f"delete_{post['id']}"
+            ):
+
+                delete_post(
+                    post["id"]
+                )
+
+                st.rerun()
+
+
+            st.divider()
