@@ -1,6 +1,5 @@
 import streamlit as st
 from supabase import create_client, Client
-import uuid
 import re
 
 
@@ -283,6 +282,10 @@ def update_applicant(
 # POST FORM
 # ==========================================================
 
+# ==========================================================
+# POST FORM
+# ==========================================================
+
 def post_form(category, purpose):
 
 
@@ -322,7 +325,7 @@ def post_form(category, purpose):
 
 
     photo = st.file_uploader(
-        "Your Photo (1 picture)",
+        "Your Photo (1 picture only)",
         type=[
             "jpg",
             "jpeg",
@@ -347,6 +350,11 @@ def post_form(category, purpose):
             return
 
 
+        photo_url = upload_photo(
+            photo
+        )
+
+
         save_post(
             category,
             purpose,
@@ -355,7 +363,7 @@ def post_form(category, purpose):
             activity_date,
             activity_time,
             email,
-            photo
+            photo_url
         )
 
 
@@ -368,11 +376,9 @@ def post_form(category, purpose):
 # ==========================================================
 # SHOW APPLICANTS
 # ==========================================================
-# ==========================================================
-# SHOW APPLICANTS
-# ==========================================================
 
 def show_applicants(post):
+
 
     st.subheader(
         "👥 Applicants"
@@ -400,7 +406,9 @@ def show_applicants(post):
     applicants = response.data
 
 
+
     for i in range(5):
+
 
         st.write(
             f"### Applicant {i+1}"
@@ -409,14 +417,12 @@ def show_applicants(post):
 
         if i < len(applicants):
 
+
             applicant = applicants[i]
 
 
-            # Applicant photo
-            if (
-                applicant.get("photo_url")
-                and applicant["photo_url"].startswith("http")
-            ):
+            if applicant.get("photo_url"):
+
 
                 st.image(
                     applicant["photo_url"],
@@ -437,12 +443,6 @@ def show_applicants(post):
             )
 
 
-            st.write(
-                "Status:",
-                applicant["status"]
-            )
-
-
             col1, col2 = st.columns(2)
 
 
@@ -459,10 +459,11 @@ def show_applicants(post):
                     )
 
                     st.success(
-                        "Applicant accepted"
+                        "Accepted"
                     )
 
                     st.rerun()
+
 
 
             with col2:
@@ -478,13 +479,14 @@ def show_applicants(post):
                     )
 
                     st.success(
-                        "Applicant rejected"
+                        "Rejected"
                     )
 
                     st.rerun()
 
 
         else:
+
 
             st.info(
                 "Empty position"
@@ -535,12 +537,17 @@ def show_posts(category):
             with st.container():
 
 
-                if post["photo_url"]:
+                # Poster photo
+
+                if post.get("photo_url"):
+
 
                     st.image(
                         post["photo_url"],
-                        width=200
+                        width=200,
+                        caption="Poster Photo"
                     )
+
 
 
                 st.write(
@@ -577,6 +584,9 @@ def show_posts(category):
                 )
 
 
+
+                # Wanted ads allow applications
+
                 if post["purpose"] == "Wanted":
 
 
@@ -596,20 +606,20 @@ def show_posts(category):
                     )
 
 
-                    apply_email = st.text_input(
+                    applicant_email = st.text_input(
                         "Your Email",
-                        key=f"apply_email_{post['id']}"
+                        key=f"email_{post['id']}"
                     )
 
 
-                    apply_photo = st.file_uploader(
+                    applicant_photo = st.file_uploader(
                         "Your Photo",
                         type=[
                             "jpg",
                             "jpeg",
                             "png"
                         ],
-                        key=f"apply_photo_{post['id']}"
+                        key=f"photo_{post['id']}"
                     )
 
 
@@ -620,17 +630,28 @@ def show_posts(category):
 
 
                         if valid_email(
-                            apply_email
+                            applicant_email
                         ):
+
 
                             apply_to_post(
                                 post["id"],
                                 name,
-                                apply_email,
-                                apply_photo
+                                applicant_email,
+                                upload_photo(applicant_photo)
                             )
 
+
+                            st.success(
+                                "Application sent!"
+                            )
+
+
+                            st.rerun()
+
+
                         else:
+
 
                             st.error(
                                 "Invalid email"
@@ -661,11 +682,12 @@ def show_posts(category):
                 st.divider()
 
 
+
     else:
 
 
         st.info(
-            "No iBud listings yet."
+            "No listings found."
         )
 
 
@@ -687,9 +709,7 @@ def choose_purpose(category):
             key=f"{category}_offering"
         ):
 
-            st.session_state[
-                "purpose"
-            ] = "Offering"
+            st.session_state.purpose = "Offering"
 
 
 
@@ -700,9 +720,7 @@ def choose_purpose(category):
             key=f"{category}_wanted"
         ):
 
-            st.session_state[
-                "purpose"
-            ] = "Wanted"
+            st.session_state.purpose = "Wanted"
 
 
 
@@ -721,13 +739,15 @@ def choose_purpose(category):
 
         if action == "Post":
 
+
             post_form(
                 category,
-                st.session_state["purpose"]
+                st.session_state.purpose
             )
 
 
         else:
+
 
             show_posts(
                 category
@@ -767,12 +787,14 @@ for tab, activity in zip(
     activities
 ):
 
+
     with tab:
 
-        clean_name = (
-            activity
-            .split(" ",1)[1]
-        )
+
+        category = activity.split(
+            " ",
+            1
+        )[1]
 
 
         st.header(
@@ -781,5 +803,5 @@ for tab, activity in zip(
 
 
         choose_purpose(
-            clean_name
+            category
         )
