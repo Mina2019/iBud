@@ -125,13 +125,11 @@ def delete_post(post_id):
     ).execute()
 
 
-
 # ==========================================================
-# SHOW LISTINGS
+# SHOW POSTS
 # ==========================================================
 
 def show_posts(category):
-
 
     st.subheader(
         f"📋 {category} Listings"
@@ -163,25 +161,18 @@ def show_posts(category):
 
     if posts:
 
-
         for post in posts:
-
 
             with st.container():
 
-                if post["photo_url"]:
 
-                    image_bytes = base64.b64decode(
-                        post["photo_url"]
-                    )
-
-                    image = Image.open(
-                        io.BytesIO(image_bytes)
-                    )
+                # SHOW PHOTO
+                if post.get("photo_url"):
 
                     st.image(
-                        image,
-                        width=200
+                        post["photo_url"],
+                        width=200,
+                        caption="Profile Photo"
                     )
 
 
@@ -218,21 +209,6 @@ def show_posts(category):
                     post["activity_time"]
                 )
 
-                if post.get("photo_url"):
-
-                    image_bytes = base64.b64decode(
-                        post["photo_url"]
-                    )
-
-                    image = Image.open(
-                        io.BytesIO(image_bytes)
-                    )
-
-                    st.image(
-                        image,
-                        width=200,
-                        caption="Profile Photo"
-                    )
 
                 st.write(
                     "📧",
@@ -264,7 +240,6 @@ def show_posts(category):
         st.info(
             "No listings found."
         )
-
 
 
 # ==========================================================
@@ -314,8 +289,9 @@ def post_form(category, purpose):
             "jpeg",
             "png"
         ],
-        key=f"{layer}_{module}_{purpose}_image"
+        key=f"{category}_{purpose}_image"
     )
+
 
     if st.button(
         "Post",
@@ -330,6 +306,7 @@ def post_form(category, purpose):
 
             return
 
+
         save_post(
             category,
             purpose,
@@ -339,13 +316,13 @@ def post_form(category, purpose):
             activity_date,
             activity_time,
             email,
-            photo
+            image
         )
+
 
         st.success(
             "Post created successfully!"
         )
-
 
 
 # ==========================================================
